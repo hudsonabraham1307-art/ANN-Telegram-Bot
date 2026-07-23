@@ -1,0 +1,4 @@
+.env
+ann_chat.db
+__pycache__/
+*.pyc
