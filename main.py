@@ -200,7 +200,9 @@ async def handle_chat_message(update: Update, context: ContextTypes.DEFAULT_TYPE
         # Generate response
         ann_reply = await generate_ann_response(
             chat_history=history,
-            latest_user_message=user_text
+            latest_user_message=user_text,
+            username=update.effective_user.username,
+            first_name=update.effective_user.first_name
         )
 
         # Save ANN response
