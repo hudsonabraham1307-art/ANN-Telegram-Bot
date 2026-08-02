@@ -13,8 +13,12 @@ OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "").strip()
 
 OPENROUTER_MODEL = os.getenv(
     "OPENROUTER_MODEL",
-    "deepseek/deepseek-chat-v3.1:free"
+    "google/gemma-3-27b-it:free"
 ).strip()
+
+print("=" * 60)
+print("OPENROUTER_MODEL =", OPENROUTER_MODEL)
+print("=" * 60)
 
 # Database
 DATABASE_PATH = os.getenv("DATABASE_PATH", "ann_chat.db").strip()
