@@ -11,6 +11,11 @@ load_dotenv(dotenv_path=env_path)
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "").strip()
 
+OPENROUTER_MODEL = os.getenv(
+    "OPENROUTER_MODEL",
+    "deepseek/deepseek-chat-v3.1:free"
+).strip()
+
 # Database
 DATABASE_PATH = os.getenv("DATABASE_PATH", "ann_chat.db").strip()
 
