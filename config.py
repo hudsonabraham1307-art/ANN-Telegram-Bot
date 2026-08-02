@@ -9,7 +9,7 @@ load_dotenv(dotenv_path=env_path)
 
 # API Keys
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
-GROQ_API_KEY = os.getenv("GROQ_API_KEY", "").strip()
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "").strip()
 
 # Database
 DATABASE_PATH = os.getenv("DATABASE_PATH", "ann_chat.db").strip()
@@ -35,8 +35,8 @@ def validate_config():
     if not TELEGRAM_BOT_TOKEN:
         missing.append("TELEGRAM_BOT_TOKEN")
 
-    if not GROQ_API_KEY:
-        missing.append("GROQ_API_KEY")
+    if not OPENROUTER_API_KEY:
+        missing.append("OPENROUTER_API_KEY")
 
     if missing:
         print("\n" + "=" * 60)
