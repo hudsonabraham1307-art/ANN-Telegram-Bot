@@ -44,8 +44,8 @@ def validate_config():
     if not TELEGRAM_BOT_TOKEN:
         missing.append("TELEGRAM_BOT_TOKEN")
 
-    if not OPENROUTER_API_KEY:
-        missing.append("OPENROUTER_API_KEY")
+    if not GEMINI_API_KEY:
+        missing.append("GEMINI_API_KEY")
 
     if missing:
         print("\n" + "=" * 60)
