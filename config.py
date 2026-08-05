@@ -1,40 +1,44 @@
 import os
+import sys
+from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv()
+# Load .env
+env_path = Path(__file__).parent / ".env"
+load_dotenv(dotenv_path=env_path)
 
-TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+# API Keys
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "").strip()
 
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+# Database
+DATABASE_PATH = os.getenv("DATABASE_PATH", "ann_chat.db").strip()
 
-OPENROUTER_MODEL = os.getenv(
-    "OPENROUTER_MODEL",
-    "google/gemma-3-27b-it:free"
-)
+# Memory
+MAX_HISTORY_MESSAGES = int(os.getenv("MAX_HISTORY_MESSAGES", "20"))
 
-DATABASE_PATH = os.getenv(
-    "DATABASE_PATH",
-    "ann_chat.db"
-)
+# Rate Limits
+RATE_LIMIT_MESSAGES = int(os.getenv("RATE_LIMIT_MESSAGES", "10"))
+RATE_LIMIT_WINDOW_SECONDS = int(os.getenv("RATE_LIMIT_WINDOW_SECONDS", "60"))
 
-MAX_HISTORY_MESSAGES = int(
-    os.getenv("MAX_HISTORY_MESSAGES", 20)
-)
-
-RATE_LIMIT_MESSAGES = int(
-    os.getenv("RATE_LIMIT_MESSAGES", 10)
-)
-
-RATE_LIMIT_WINDOW_SECONDS = int(
-    os.getenv("RATE_LIMIT_WINDOW_SECONDS", 60)
-)
+# OpenRouter Model
+OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "qwen/qwen3-235b-a22b:free").strip()
 
 
 def validate_config():
-    required = [
-        TELEGRAM_BOT_TOKEN,
-        OPENROUTER_API_KEY
-    ]
+    missing = []
 
-    if not all(required):
-        raise ValueError("Missing required environment variables")
+    if not TELEGRAM_BOT_TOKEN:
+        missing.append("TELEGRAM_BOT_TOKEN")
+
+    if not OPENROUTER_API_KEY:
+        missing.append("OPENROUTER_API_KEY")
+
+    if missing:
+        print("\n" + "=" * 60)
+        print("ERROR: Missing configuration values!\n")
+        for item in missing:
+            print(f"- {item}")
+        print("\nUpdate your .env file and try again.")
+        print("=" * 60)
+        sys.exit(1)
