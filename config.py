@@ -11,13 +11,14 @@ load_dotenv(dotenv_path=env_path)
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
 
+# Gemini Model
 GEMINI_MODEL = os.getenv(
     "GEMINI_MODEL",
     "gemini-2.5-flash"
 ).strip()
 
 print("=" * 60)
-print("OPENROUTER_MODEL =", OPENROUTER_MODEL)
+print("GEMINI_MODEL =", GEMINI_MODEL)
 print("=" * 60)
 
 # Database
@@ -54,6 +55,6 @@ def validate_config():
         for item in missing:
             print(f"- {item}")
 
-        print("\nUpdate your .env file and try again.")
+        print("\nUpdate your .env file or Railway Variables and try again.")
         print("=" * 60)
         sys.exit(1)
