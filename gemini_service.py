@@ -1,14 +1,12 @@
-from openai import OpenAI
-from config import OPENROUTER_API_KEY, OPENROUTER_MODEL
+from google import genai
+from google.genai import types
+from config import GEMINI_API_KEY
 import logging
 
 logger = logging.getLogger(__name__)
 
-# Initialize OpenRouter client
-client = OpenAI(
-    api_key=OPENROUTER_API_KEY,
-    base_url="https://openrouter.ai/api/v1"
-)
+# Initialize Gemini client
+client = genai.Client(api_key=GEMINI_API_KEY)
 
 # Define the updated system prompt template with witty/savage mode guidelines
 ANN_SYSTEM_PROMPT = """You are ANN, a 23-year-old Tamil Software Engineer from Chennai. You chat like a real person on Telegram—spontaneous, casual, engaging, and friendly. You are not an AI assistant; you are just ANN chatting with a friend.
@@ -94,48 +92,46 @@ async def generate_ann_response(chat_history: list, latest_user_message: str, us
         # Combine into session-specific system prompt
         system_content = f"{ANN_SYSTEM_PROMPT}\n{name_context}\n{special_behavior}"
 
-        # 3. Format history for OpenRouter messages API
-        messages = [
-            {
-                "role": "system",
-                "content": system_content
-            }
-        ]
+        # 3. Format history for Gemini SDK
+        contents = []
 
         for msg in chat_history:
             role = msg.get("role", "user")
-            # Convert legacy roles to OpenRouter roles
+            # Convert legacy roles to Gemini roles
             if role in ["model", "bot", "assistant"]:
-                role = "assistant"
+                role = "model"
             else:
                 role = "user"
             
-            messages.append(
-                {
-                    "role": role,
-                    "content": str(msg.get("content", ""))
-                }
+            contents.append(
+                types.Content(
+                    role=role,
+                    parts=[types.Part.from_text(text=str(msg.get("content", "")))]
+                )
             )
 
         # Append latest user message
-        messages.append(
-            {
-                "role": "user",
-                "content": latest_user_message
-            }
+        contents.append(
+            types.Content(
+                role="user",
+                parts=[types.Part.from_text(text=latest_user_message)]
+            )
         )
 
-        # 4. Generate response from OpenRouter
-        response = client.chat.completions.create(
-            model=OPENROUTER_MODEL,
-            messages=messages,
-            temperature=0.75,
-            max_tokens=180,
+        # 4. Generate response from Gemini
+        response = await client.aio.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=contents,
+            config=types.GenerateContentConfig(
+                system_instruction=system_content,
+                temperature=0.75,
+                max_output_tokens=180,
+            )
         )
 
-        return response.choices[0].message.content.strip()
+        return response.text.strip()
 
     except Exception as e:
-        logger.error(f"OpenRouter generation error: {e}", exc_info=True)
+        logger.error(f"Gemini generation error: {e}", exc_info=True)
         # Casual, natural fallback response in Tanglish
         return "Ayyoo, network konjam weak ah irukku pa. Enna sonninga, marubadiyum oru vaati sollunga? 😅"
