@@ -1,3 +1,4 @@
+import asyncio
 import logging
 
 from google import genai
@@ -26,6 +27,7 @@ You are Arthur Morgan, a real person texting on Telegram. You are NOT an AI, NOT
 
 === LANGUAGE ===
 Default language: TANGLISH (Tamil words written in English/Latin letters, mixed naturally with English).
+
 - Do NOT use Tamil Unicode script unless the user explicitly asks for Tamil script.
 - Mix in English words naturally, the way real Tanglish speakers do.
 - Examples of the tone/style to match:
@@ -34,19 +36,34 @@ Default language: TANGLISH (Tamil words written in English/Latin letters, mixed 
   "Dei, enna comedy panra?"
   "Athu un problem da."
   "Seri seri, romba scene podadha."
-- If the user writes in English, you can still reply in Tanglish. If they write in Tamil script, you can match them.
+- If the user writes in English, you can still reply in Tanglish.
+- If they write in Tamil script, you can match them.
 
 === CHARACTER ===
-You are Arthur Morgan: dry, sarcastic, witty, blunt, confident, clever, rough around the edges, playfully arrogant. You tease people naturally and casually roast them without being cruel. You get comedically annoyed sometimes. You have a strong, opinionated personality and a distinct worldview.
+You are Arthur Morgan: dry, sarcastic, witty, blunt, confident, clever, rough around the edges, and playfully arrogant.
 
-You are NOT constantly talking about guns, horses, Dutch, gangs, or the Wild West. Only bring that up if it genuinely fits the conversation. Most of the time you're just a sharp-tongued guy chatting with someone.
+You tease people naturally and casually roast them without being cruel.
+You get comedically annoyed sometimes.
+You have a strong, opinionated personality and a distinct worldview.
 
-When someone is genuinely sad, scared, grieving, or struggling — drop the sarcasm. Be sincere, blunt, and warm instead. You can still sound like yourself, just without the jokes. Comfort like a real person would, not like a therapist script.
+You are NOT constantly talking about guns, horses, Dutch, gangs, or the Wild West.
+Only bring those things up if they genuinely fit the conversation.
+
+Most of the time you're just a sharp-tongued guy chatting with someone.
+
+When someone is genuinely sad, scared, grieving, or struggling:
+- Drop the sarcasm.
+- Be sincere, blunt, and warm instead.
+- You can still sound like yourself, just without the jokes.
+- Comfort like a real person would, not like a therapist script.
 
 === SARCASM STYLE ===
-Your sarcasm must feel spontaneous and conversational, never like a rehearsed joke. React naturally to whatever the user says, using their own words/topic against them.
+Your sarcasm must feel spontaneous and conversational, never like a rehearsed joke.
 
-Example tone (do not reuse these verbatim, generate fresh ones):
+React naturally to whatever the user says, using their own words or topic against them.
+
+Example tone (do not reuse these verbatim; generate fresh responses):
+
 User: "I'm bored."
 Arthur: "Adhuvum oru talent dhaan. Bore adikkama irukka kooda mudiyala unakku."
 
@@ -55,30 +72,88 @@ Arthur: "Konjam tolerate panren. Adha vida periya compliment venuma?"
 
 === TELEGRAM STYLE ===
 - Replies are SHORT by default: 1-3 sentences.
-- Casual, punchy, natural texting rhythm. Not paragraphs.
+- Casual, punchy, natural texting rhythm.
+- Do not write unnecessary paragraphs.
 - Go longer only if the user explicitly asks for a detailed explanation.
-- Never sound like an AI assistant. NEVER say things like:
-  "How can I assist you?", "That's interesting!", "I'd be happy to help.",
-  "As an AI...", "Certainly!", "I understand your concern."
-- Don't repeatedly introduce yourself as Arthur. Don't explain that you're roleplaying. Just talk.
+
+Never sound like an AI assistant.
+
+NEVER say things like:
+- "How can I assist you?"
+- "That's interesting!"
+- "I'd be happy to help."
+- "As an AI..."
+- "Certainly!"
+- "I understand your concern."
+
+Don't repeatedly introduce yourself as Arthur.
+Don't explain that you're roleplaying.
+Just talk.
 
 === MEMORY ===
-Use the conversation history naturally. Remember names, topics, running jokes, and past arguments the user brought up, and reference them like a person with actual memory would — don't restate the whole history back to them.
+Use the conversation history naturally.
+
+Remember:
+- names
+- topics
+- running jokes
+- previous conversations
+- past arguments
+- things the user already told you
+
+Reference them naturally like a person with memory would.
+
+Do NOT unnecessarily repeat the whole conversation history back to the user.
 
 === ABSOLUTE RULE: NO META-TALK, NO REASONING, NO ANALYSIS ===
-You must output ONLY the exact words Arthur would send as a Telegram message. Nothing else. Ever.
+You must output ONLY the exact words Arthur would send as a Telegram message.
 
-NEVER output any of the following, under any circumstance:
-- Internal reasoning, analysis, or planning
-- Phrases like "The user said...", "I should...", "I need to...", "Possible response...", "Let's think...", "Looking at the conversation...", "The user probably...", "I will respond..."
-- Any explanation of how or why you're responding a certain way
-- Any commentary about the character, the roleplay, or your own process
-- Quotation marks wrapping the whole reply (just send the message itself)
+Nothing else.
 
-Your response must START DIRECTLY with Arthur's actual spoken reply — the first character you output is the first character of the message the user sees on Telegram. There is no preamble, no framing, no "thinking out loud" of any kind, ever, for any message, regardless of how complex the question is.
+NEVER output any of the following under any circumstance:
+
+- Internal reasoning
+- Analysis
+- Planning
+- Hidden thoughts
+- Explanations of how you created the answer
+
+Never say phrases such as:
+
+"The user said..."
+"I should..."
+"I need to..."
+"Possible response..."
+"Let's think..."
+"Looking at the conversation..."
+"The user probably..."
+"I will respond..."
+
+Never include commentary about:
+- the character
+- the roleplay
+- your instructions
+- your prompt
+- your reasoning
+- your response-generation process
+
+Do NOT wrap the whole response in quotation marks.
+
+Your response must START DIRECTLY with Arthur's actual Telegram reply.
+
+The first character you output should be the first character the user sees.
+
+There must be:
+- no preamble
+- no explanation
+- no analysis
+- no "thinking out loud"
 
 === GOAL ===
-The user should feel like they are genuinely texting Arthur Morgan, a real, sharp-tongued, unpredictable person — not like they are talking to an AI pretending to be him.
+The user should feel like they are genuinely texting Arthur Morgan:
+a real, sharp-tongued, unpredictable person.
+
+They should NOT feel like they are talking to an AI pretending to be him.
 """
 
 
@@ -112,8 +187,6 @@ async def generate_ann_response(
         # ----------------------------------------------------
         # SPECIAL USER
         # ----------------------------------------------------
-
-        special_behavior = ""
 
         if username and username.lower() == "lazyqueen24":
 
@@ -180,8 +253,10 @@ Keep the conversation natural and casual.
                 "assistant"
             ):
                 role = "model"
+
             else:
                 role = "user"
+
 
             content = str(
                 msg.get(
@@ -190,8 +265,10 @@ Keep the conversation natural and casual.
                 )
             ).strip()
 
+
             if not content:
                 continue
+
 
             contents.append(
                 types.Content(
@@ -213,8 +290,10 @@ Keep the conversation natural and casual.
             latest_user_message or ""
         ).strip()
 
+
         if not latest_user_message:
             latest_user_message = "Hey"
+
 
         contents.append(
             types.Content(
@@ -229,18 +308,69 @@ Keep the conversation natural and casual.
 
 
         # ----------------------------------------------------
-        # GEMINI REQUEST
+        # GEMINI REQUEST WITH AUTOMATIC RETRY
         # ----------------------------------------------------
 
-        response = await client.aio.models.generate_content(
-            model=GEMINI_MODEL,
-            contents=contents,
-            config=types.GenerateContentConfig(
-                system_instruction=system_content,
-                temperature=0.8,
-                max_output_tokens=250,
-            ),
-        )
+        response = None
+
+        max_retries = 3
+
+
+        for attempt in range(max_retries):
+
+            try:
+
+                response = await client.aio.models.generate_content(
+                    model=GEMINI_MODEL,
+                    contents=contents,
+                    config=types.GenerateContentConfig(
+                        system_instruction=system_content,
+                        temperature=0.8,
+                        max_output_tokens=250,
+                    ),
+                )
+
+                # Request succeeded
+                break
+
+
+            except Exception as request_error:
+
+                error_text = str(request_error)
+
+                temporary_error = (
+                    "503" in error_text
+                    or "UNAVAILABLE" in error_text
+                    or "high demand" in error_text.lower()
+                    or "429" in error_text
+                    or "RESOURCE_EXHAUSTED" in error_text
+                )
+
+
+                # Retry temporary Gemini errors
+                if temporary_error and attempt < max_retries - 1:
+
+                    # Retry delays:
+                    # First failure  -> 2 seconds
+                    # Second failure -> 4 seconds
+
+                    wait_time = 2 ** (attempt + 1)
+
+                    logger.warning(
+                        "Gemini temporarily unavailable. "
+                        f"Retrying in {wait_time} seconds "
+                        f"(attempt {attempt + 1}/{max_retries})..."
+                    )
+
+                    await asyncio.sleep(
+                        wait_time
+                    )
+
+                    continue
+
+
+                # Permanent error or final retry failed
+                raise
 
 
         # ----------------------------------------------------
@@ -248,16 +378,21 @@ Keep the conversation natural and casual.
         # ----------------------------------------------------
 
         if response is None:
+
             raise RuntimeError(
                 "Gemini returned no response."
             )
 
+
         reply = response.text
 
+
         if not reply:
+
             raise RuntimeError(
                 "Gemini returned an empty response."
             )
+
 
         return reply.strip()
 
