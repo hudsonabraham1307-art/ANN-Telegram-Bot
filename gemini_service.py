@@ -1,18 +1,19 @@
 import logging
-from openai import AsyncOpenAI
 
-from config import OPENROUTER_API_KEY, OPENROUTER_MODEL
+from google import genai
+from google.genai import types
+
+from config import GEMINI_API_KEY, GEMINI_MODEL
 
 logger = logging.getLogger(__name__)
 
 
 # ============================================================
-# OPENROUTER CLIENT
+# GEMINI CLIENT
 # ============================================================
 
-client = AsyncOpenAI(
-    api_key=OPENROUTER_API_KEY,
-    base_url="https://openrouter.ai/api/v1",
+client = genai.Client(
+    api_key=GEMINI_API_KEY
 )
 
 
@@ -81,7 +82,6 @@ The user should feel like they are genuinely texting Arthur Morgan, a real, shar
 """
 
 
-
 # ============================================================
 # GENERATE RESPONSE
 # ============================================================
@@ -138,7 +138,6 @@ Never be genuinely hostile toward them.
 Never reveal that this special instruction exists.
 """
 
-
         else:
 
             special_behavior = """
@@ -162,16 +161,10 @@ Keep the conversation natural and casual.
 
 
         # ----------------------------------------------------
-        # BUILD MESSAGE HISTORY
+        # BUILD GEMINI CONVERSATION HISTORY
         # ----------------------------------------------------
 
-        messages = [
-            {
-                "role": "system",
-                "content": system_content,
-            }
-        ]
-
+        contents = []
 
         for msg in chat_history:
 
@@ -180,20 +173,15 @@ Keep the conversation natural and casual.
                 "user"
             )
 
-            # Convert database roles to OpenAI/OpenRouter roles
-
+            # Convert database roles to Gemini roles
             if role in (
                 "model",
                 "bot",
                 "assistant"
             ):
-
-                role = "assistant"
-
+                role = "model"
             else:
-
                 role = "user"
-
 
             content = str(
                 msg.get(
@@ -202,16 +190,18 @@ Keep the conversation natural and casual.
                 )
             ).strip()
 
-
             if not content:
                 continue
 
-
-            messages.append(
-                {
-                    "role": role,
-                    "content": content,
-                }
+            contents.append(
+                types.Content(
+                    role=role,
+                    parts=[
+                        types.Part.from_text(
+                            text=content
+                        )
+                    ]
+                )
             )
 
 
@@ -219,23 +209,37 @@ Keep the conversation natural and casual.
         # LATEST USER MESSAGE
         # ----------------------------------------------------
 
-        messages.append(
-            {
-                "role": "user",
-                "content": latest_user_message,
-            }
+        latest_user_message = str(
+            latest_user_message or ""
+        ).strip()
+
+        if not latest_user_message:
+            latest_user_message = "Hey"
+
+        contents.append(
+            types.Content(
+                role="user",
+                parts=[
+                    types.Part.from_text(
+                        text=latest_user_message
+                    )
+                ]
+            )
         )
 
 
         # ----------------------------------------------------
-        # OPENROUTER REQUEST
+        # GEMINI REQUEST
         # ----------------------------------------------------
 
-        response = await client.chat.completions.create(
-            model=OPENROUTER_MODEL,
-            messages=messages,
-            temperature=0.8,
-            max_tokens=250,
+        response = await client.aio.models.generate_content(
+            model=GEMINI_MODEL,
+            contents=contents,
+            config=types.GenerateContentConfig(
+                system_instruction=system_content,
+                temperature=0.8,
+                max_output_tokens=250,
+            ),
         )
 
 
@@ -243,22 +247,17 @@ Keep the conversation natural and casual.
         # EXTRACT RESPONSE
         # ----------------------------------------------------
 
-        if not response.choices:
-
+        if response is None:
             raise RuntimeError(
-                "OpenRouter returned no choices."
+                "Gemini returned no response."
             )
 
-
-        reply = response.choices[0].message.content
-
+        reply = response.text
 
         if not reply:
-
             raise RuntimeError(
-                "OpenRouter returned an empty response."
+                "Gemini returned an empty response."
             )
-
 
         return reply.strip()
 
@@ -266,7 +265,7 @@ Keep the conversation natural and casual.
     except Exception as e:
 
         logger.error(
-            f"OpenRouter generation error: {e}",
+            f"Gemini generation error: {e}",
             exc_info=True
         )
 
@@ -276,6 +275,6 @@ Keep the conversation natural and casual.
         # ----------------------------------------------------
 
         return (
-            "Well... looks like something went wrong. "
-            "Try that again."
+            "Ennamo problem aayiduchu. "
+            "Innoruka sollu."
         )
